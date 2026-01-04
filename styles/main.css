@@ -280,6 +280,14 @@ a:hover {
     opacity: 0.9;
 }
 
+.upload-icon-text {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .upload-text {
     font-size: var(--font-size-xl);
     font-weight: 600;
