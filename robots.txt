@@ -1,0 +1,11 @@
+# Robots.txt for PDF to Audio Converter
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://expert-utility-hub.github.io/pdf-to-audio/sitemap.xml
+
+# Disallow sensitive directories
+Disallow: /scripts/
+Disallow: /lib/
+Disallow: /styles/

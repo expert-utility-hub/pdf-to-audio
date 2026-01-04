@@ -1,0 +1,9 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#0f172a"/>
+  <rect x="100" y="100" width="1000" height="430" rx="20" fill="#1e293b" stroke="#6366f1" stroke-width="4"/>
+  <text x="600" y="280" font-family="Inter, sans-serif" font-size="64" font-weight="700" fill="#f8fafc" text-anchor="middle">PDF to Audio Converter</text>
+  <text x="600" y="350" font-family="Inter, sans-serif" font-size="28" fill="#94a3b8" text-anchor="middle">Convert PDF to MP3 in seconds</text>
+  <circle cx="600" cy="450" r="50" fill="#6366f1"/>
+  <path d="M580 430v40M620 430v40M580 430l20 20 20-20M620 430l-20 20 20-20" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="600" y="570" font-family="Inter, sans-serif" font-size="20" fill="#64748b" text-anchor="middle">Free Online Tool • No Upload Required</text>
+</svg>
