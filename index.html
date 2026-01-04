@@ -311,7 +311,37 @@
                 </div>
                 <button type="submit" class="btn btn-primary btn-block">Sign In</button>
             </form>
-            <p class="login-note">Don't have an account? <a href="#" id="signup-link">Sign up</a></p>
+            <p class="login-note">Don't have an account? <a href="#" id="show-signup">Sign up</a></p>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div class="modal" id="signup-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content login-modal">
+            <button class="modal-close" id="close-signup">&times;</button>
+            <h2>Create Account</h2>
+            <p class="login-subtitle">Sign up to save your library and get premium features</p>
+            <form id="signup-form" class="login-form">
+                <div class="form-group">
+                    <label for="signup-name">Full Name</label>
+                    <input type="text" id="signup-name" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" placeholder="••••••••" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="signup-confirm">Confirm Password</label>
+                    <input type="password" id="signup-confirm" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+            </form>
+            <p class="login-note">Already have an account? <a href="#" id="show-login">Sign in</a></p>
         </div>
     </div>
 
@@ -349,6 +379,7 @@
     <!-- Scripts -->
     <script src="lib/pdf.min.js"></script>
     <script src="scripts/utils.js"></script>
+    <script src="scripts/auth-manager.js"></script>
     <script src="scripts/library-manager.js"></script>
     <script src="scripts/pdf-handler.js"></script>
     <script src="scripts/tts-manager.js"></script>

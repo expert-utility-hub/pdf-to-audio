@@ -33,14 +33,12 @@ const Toast = {
             <button class="toast-close">&times;</button>
         `;
         
-        // Close button handler
         toast.querySelector('.toast-close').addEventListener('click', () => {
             this.remove(toast);
         });
         
         this.container.appendChild(toast);
         
-        // Auto remove
         setTimeout(() => {
             this.remove(toast);
         }, duration);
@@ -107,21 +105,18 @@ const Modal = {
     },
     
     init() {
-        // Close modal on overlay click
         document.querySelectorAll('.modal-overlay').forEach(overlay => {
             overlay.addEventListener('click', () => {
                 this.hideAll();
             });
         });
         
-        // Close modal on escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 this.hideAll();
             }
         });
         
-        // Setup modal close buttons
         document.querySelectorAll('.modal-close').forEach(btn => {
             btn.addEventListener('click', () => {
                 this.hideAll();
@@ -132,53 +127,42 @@ const Modal = {
 
 // Main Application
 const App = {
-    /**
-     * Initialize the application
-     */
     init() {
         console.log('PDF to Audio Converter initializing...');
         
-        // Initialize systems
         Modal.init();
         Toast.init();
+        AuthManager.init();
         PremiumManager.init();
         LibraryManager.init();
         PDFHandler.init();
         TTSManager.init();
         
-        // Setup event listeners
         this.setupUpload();
         this.setupPlayer();
-        this.setupLogin();
+        this.setupAuth();
         
-        // Check capabilities
         this.checkCapabilities();
         
         console.log('PDF to Audio Converter ready!');
     },
     
-    /**
-     * Setup file upload functionality
-     */
     setupUpload() {
         const uploadBtn = document.getElementById('upload-btn');
         const uploadZone = document.getElementById('upload-zone');
         const fileInput = document.getElementById('file-input');
         const demoBtn = document.getElementById('demo-btn');
         
-        // Click to upload
         if (uploadBtn) {
             uploadBtn.addEventListener('click', () => fileInput.click());
         }
         
         if (uploadZone) {
-            // Click zone to upload
             uploadZone.addEventListener('click', (e) => {
                 if (e.target !== uploadZone) return;
                 fileInput.click();
             });
             
-            // Drag and drop
             uploadZone.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 uploadZone.classList.add('drag-over');
@@ -200,7 +184,6 @@ const App = {
             });
         }
         
-        // File input change
         if (fileInput) {
             fileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
@@ -210,7 +193,6 @@ const App = {
             });
         }
         
-        // Demo button
         if (demoBtn) {
             demoBtn.addEventListener('click', () => {
                 this.loadDemoPDF();
@@ -218,18 +200,19 @@ const App = {
         }
     },
     
-    /**
-     * Process uploaded PDF file
-     * @param {File} file - PDF file
-     */
     async processFile(file) {
         if (!Utils.isPDFFile(file)) {
             Toast.show('Please select a PDF file', 'error');
             return;
         }
         
-        // Check library limit
         const canAdd = LibraryManager.canAddFile();
+        if (!canAdd.canAdd && !AuthManager.isLoggedIn()) {
+            Modal.show('login');
+            Toast.show('Please log in to save files', 'warning');
+            return;
+        }
+        
         if (!canAdd.canAdd && !PremiumManager.isPremium()) {
             Toast.show(`Free tier limited to ${canAdd.maxItems} files. Upgrade for unlimited!`, 'warning');
             return;
@@ -238,37 +221,23 @@ const App = {
         try {
             Toast.show('Processing PDF...', 'info');
             
-            // Load PDF
             const pdfData = await PDFHandler.loadPDF(file);
             Toast.show(`Extracting text from ${pdfData.pages} pages...`, 'info');
             
-            // Extract text with progress
-            const text = await PDFHandler.extractText({
-                progressCallback: (progress) => {
-                    // Could show progress bar here
-                }
-            });
-            
-            // Clean text
+            const text = await PDFHandler.extractText({});
             const cleanedText = PDFHandler.cleanText(text);
             
-            // Add to library if within limits
             if (canAdd.canAdd || PremiumManager.isPremium()) {
                 const fileData = LibraryManager.createFileData(file, cleanedText);
                 LibraryManager.addFile(fileData);
             }
             
-            // Update UI
             document.getElementById('doc-title').textContent = file.name;
             document.getElementById('doc-status').textContent = `${pdfData.pages} pages loaded`;
             
-            // Load text into TTS
             TTSManager.loadText(cleanedText);
-            
-            // Update text display
             PDFHandler.updateTextDisplay(0);
             
-            // Show player
             Modal.show('player');
             
             Toast.show(`PDF loaded! ${pdfData.pages} pages ready.`, 'success');
@@ -279,9 +248,6 @@ const App = {
         }
     },
     
-    /**
-     * Load demo PDF content
-     */
     loadDemoPDF() {
         const demoText = `
             Welcome to PDF to Audio Converter!
@@ -297,11 +263,8 @@ const App = {
             - Download your audio files
             
             Simply upload a PDF file to get started.
-            The system will extract the text and make it ready for audio playback.
-            
-            Students can use this to listen to textbooks and research papers.
-            Professionals can convert reports into audio for commuting.
-            Anyone can transform written content into an accessible audio format.
+            Students can use this to listen to textbooks.
+            Professionals can convert reports for commuting.
             
             Thank you for using PDF to Audio Converter!
         `;
@@ -321,9 +284,6 @@ const App = {
         Toast.show('Demo loaded! Click play to hear it.', 'success');
     },
     
-    /**
-     * Setup player controls
-     */
     setupPlayer() {
         const playPauseBtn = document.getElementById('play-pause-btn');
         const rewindBtn = document.getElementById('rewind-btn');
@@ -334,28 +294,24 @@ const App = {
         const downloadBtn = document.getElementById('download-btn');
         const bookmarkBtn = document.getElementById('bookmark-btn');
         
-        // Play/Pause
         if (playPauseBtn) {
             playPauseBtn.addEventListener('click', () => {
                 TTSManager.togglePlayPause();
             });
         }
         
-        // Rewind 10 seconds
         if (rewindBtn) {
             rewindBtn.addEventListener('click', () => {
                 TTSManager.seek(-10);
             });
         }
         
-        // Forward 10 seconds
         if (forwardBtn) {
             forwardBtn.addEventListener('click', () => {
                 TTSManager.seek(10);
             });
         }
         
-        // Progress bar
         if (progressBar) {
             progressBar.addEventListener('input', (e) => {
                 const progress = parseFloat(e.target.value);
@@ -364,14 +320,12 @@ const App = {
             });
             
             progressBar.addEventListener('change', (e) => {
-                // Resume playback when user releases slider
                 if (PDFHandler.extractedText) {
                     TTSManager.speak(PDFHandler.extractedText.slice(TTSManager.currentPosition));
                 }
             });
         }
         
-        // Speed control
         if (speedSelect) {
             speedSelect.addEventListener('change', (e) => {
                 const rate = parseFloat(e.target.value);
@@ -379,7 +333,6 @@ const App = {
             });
         }
         
-        // Close player
         if (closePlayer) {
             closePlayer.addEventListener('click', () => {
                 TTSManager.stop();
@@ -387,16 +340,19 @@ const App = {
             });
         }
         
-        // Download button
         if (downloadBtn) {
             downloadBtn.addEventListener('click', () => {
                 TTSManager.exportAsAudio();
             });
         }
         
-        // Bookmark button
         if (bookmarkBtn) {
             bookmarkBtn.addEventListener('click', () => {
+                if (!AuthManager.isLoggedIn()) {
+                    Modal.show('login');
+                    Toast.show('Please log in to save bookmarks', 'warning');
+                    return;
+                }
                 const id = LibraryManager.getLibrary()[0]?.id;
                 if (id) {
                     LibraryManager.addBookmark(id, {
@@ -409,62 +365,114 @@ const App = {
         }
     },
     
-    /**
-     * Setup login functionality
-     */
-    setupLogin() {
-        const loginForm = document.getElementById('login-form');
-        const closeLogin = document.getElementById('close-login');
-        const loginModal = document.getElementById('login-modal');
+    setupAuth() {
         const loginBtn = document.getElementById('login-btn');
-        const signupLink = document.getElementById('signup-link');
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const showSignup = document.getElementById('show-signup');
+        const showLogin = document.getElementById('show-login');
+        const closeSignup = document.getElementById('close-signup');
+        const signupModal = document.getElementById('signup-modal');
         
-        if (loginForm) {
-            loginForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const email = document.getElementById('login-email').value;
-                const password = document.getElementById('login-password').value;
-                
-                try {
-                    Toast.show('Signing in...', 'info');
-                    const result = await PremiumManager.login(email);
-                    
-                    if (result.success) {
-                        Modal.hide('login');
-                        Toast.show(`Welcome back, ${result.email}!`, 'success');
-                        loginBtn.textContent = result.email.split('@')[0];
+        // Login button
+        if (loginBtn) {
+            loginBtn.addEventListener('click', () => {
+                if (AuthManager.isLoggedIn()) {
+                    // Show logout confirmation
+                    if (confirm('Log out?')) {
+                        AuthManager.logout();
+                        Toast.show('Logged out successfully', 'success');
                     }
-                } catch (error) {
-                    Toast.show('Login failed. Please try again.', 'error');
+                } else {
+                    Modal.show('login');
                 }
             });
         }
         
-        if (closeLogin) {
-            closeLogin.addEventListener('click', () => {
-                Modal.hide('login');
+        // Login form
+        if (loginForm) {
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                
+                const result = AuthManager.login(email, password);
+                
+                if (result.success) {
+                    Modal.hide('login');
+                    Toast.show(`Welcome back, ${result.user.name}!`, 'success');
+                    AuthManager.updateUI();
+                    loginForm.reset();
+                } else {
+                    Toast.show(result.error, 'error');
+                }
             });
         }
         
-        // Signup link handler
-        if (signupLink) {
-            signupLink.addEventListener('click', (e) => {
+        // Signup form
+        if (signupForm) {
+            signupForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                Toast.show('Sign up coming soon! Use Premium to unlock all features.', 'info');
-                PremiumManager.initCheckout();
+                const name = document.getElementById('signup-name').value;
+                const email = document.getElementById('signup-email').value;
+                const password = document.getElementById('signup-password').value;
+                const confirm = document.getElementById('signup-confirm').value;
+                
+                if (password !== confirm) {
+                    Toast.show('Passwords do not match', 'error');
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    Toast.show('Password must be at least 6 characters', 'error');
+                    return;
+                }
+                
+                const result = AuthManager.register(name, email, password);
+                
+                if (result.success) {
+                    Modal.hide('signup');
+                    Toast.show(`Welcome, ${result.user.name}! Account created successfully.`, 'success');
+                    AuthManager.updateUI();
+                    signupForm.reset();
+                } else {
+                    Toast.show(result.error, 'error');
+                }
+            });
+        }
+        
+        // Show signup modal from login
+        if (showSignup) {
+            showSignup.addEventListener('click', (e) => {
+                e.preventDefault();
+                Modal.hide('login');
+                Modal.show('signup');
+            });
+        }
+        
+        // Show login modal from signup
+        if (showLogin) {
+            showLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                Modal.hide('signup');
+                Modal.show('login');
+            });
+        }
+        
+        // Close signup modal
+        if (closeSignup) {
+            closeSignup.addEventListener('click', () => {
+                Modal.hide('signup');
             });
         }
     },
     
-    /**
-     * Check browser capabilities
-     */
     checkCapabilities() {
         const ttsSupported = TTSManager.isSupported();
         const pdfSupported = PDFHandler.isAvailable();
         
         if (!ttsSupported) {
-            Toast.show('Text-to-speech is not supported in your browser. Try Chrome or Safari.', 'warning');
+            Toast.show('Text-to-speech not supported in this browser. Try Chrome or Safari.', 'warning');
         }
         
         if (!pdfSupported) {
