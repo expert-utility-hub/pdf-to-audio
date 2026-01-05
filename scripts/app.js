@@ -128,7 +128,8 @@ const Modal = {
 // Main Application
 const App = {
     init() {
-        console.log('PDF to Audio Converter initializing...');
+        // Initialize service worker for offline support
+        this.registerServiceWorker();
         
         Modal.init();
         Toast.init();
@@ -143,8 +144,21 @@ const App = {
         this.setupAuth();
         
         this.checkCapabilities();
-        
-        console.log('PDF to Audio Converter ready!');
+    },
+    
+    /**
+     * Register service worker for offline support
+     */
+    registerServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then((registration) => {
+                    console.log('Service Worker registered:', registration.scope);
+                })
+                .catch((error) => {
+                    console.warn('Service Worker registration failed:', error);
+                });
+        }
     },
     
     setupUpload() {
@@ -472,17 +486,12 @@ const App = {
         const pdfSupported = PDFHandler.isAvailable();
         
         if (!ttsSupported) {
-            Toast.show('Text-to-speech not supported in this browser. Try Chrome or Safari.', 'warning');
+            Toast.show('Text-to-speech not supported. Try Chrome or Safari.', 'warning');
         }
         
         if (!pdfSupported) {
-            Toast.show('PDF.js library not loaded. Some features may be limited.', 'warning');
+            Toast.show('PDF processing may be limited.', 'warning');
         }
-        
-        console.log('Capabilities:', {
-            tts: ttsSupported,
-            pdf: pdfSupported
-        });
     }
 };
 

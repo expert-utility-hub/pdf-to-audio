@@ -60,8 +60,12 @@
     <!-- DNS Prefetch -->
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts - Optimized loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.onload=null;this.removeAttribute('media');">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
     
     <!-- Styles -->
     <link rel="stylesheet" href="styles/main.css">
@@ -110,14 +114,14 @@
                     <h1 class="hero-title">Listen to Your PDFs</h1>
                     <p class="hero-subtitle">Convert any PDF to audio and listen on the go. Perfect for students, professionals, and audiobook lovers.</p>
                     <div class="hero-actions">
-                        <button class="btn btn-primary btn-lg" id="upload-btn">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <button class="btn btn-primary btn-lg" id="upload-btn" aria-label="Upload PDF file">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                 <path d="M10 3v11M5 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                                 <rect x="3" y="12" width="14" height="5" rx="1" stroke="currentColor" stroke-width="2"/>
                             </svg>
                             Upload PDF
                         </button>
-                        <button class="btn btn-secondary btn-lg" id="demo-btn">Try Demo</button>
+                        <button class="btn btn-secondary btn-lg" id="demo-btn" aria-label="Try demo">Try Demo</button>
                     </div>
                     <p class="hero-note">Free to use • No registration required • Works offline</p>
                 </div>
@@ -437,14 +441,14 @@
         </div>
     </footer>
 
-    <!-- Scripts -->
-    <script src="lib/pdf.min.js"></script>
-    <script src="scripts/utils.js"></script>
-    <script src="scripts/auth-manager.js"></script>
-    <script src="scripts/library-manager.js"></script>
-    <script src="scripts/pdf-handler.js"></script>
-    <script src="scripts/tts-manager.js"></script>
-    <script src="scripts/premium-manager.js"></script>
-    <script src="scripts/app.js"></script>
+    <!-- Scripts - Deferred for performance -->
+    <script src="lib/pdf.min.js" defer></script>
+    <script src="scripts/utils.js" defer></script>
+    <script src="scripts/auth-manager.js" defer></script>
+    <script src="scripts/library-manager.js" defer></script>
+    <script src="scripts/pdf-handler.js" defer></script>
+    <script src="scripts/tts-manager.js" defer></script>
+    <script src="scripts/premium-manager.js" defer></script>
+    <script src="scripts/app.js" defer></script>
 </body>
 </html>
